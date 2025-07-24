@@ -304,7 +304,7 @@ const InputField = <TForm extends FieldValues>({
         <OutlinedInput
           id={name}
           type={showPassword ? "text" : "password"}
-          value={value}
+          defaultValue={""}
           onChange={onChange}
           placeholder={placeholder}
           label={label}
@@ -326,7 +326,7 @@ const InputField = <TForm extends FieldValues>({
     <TextField
       id={name}
       label={label}
-      value={value}
+      defaultValue={""}
       onChange={onChange}
       fullWidth={fullWidth}
       size={size}

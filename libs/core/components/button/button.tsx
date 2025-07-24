@@ -5,6 +5,7 @@ type CustomButtonProps = {
   icon?: React.ReactNode;
   backgroundColor?: string;
   textColor?: string;
+  fullWidth?: boolean;
 } & ButtonProps;
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -12,11 +13,13 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   backgroundColor,
   textColor,
   children,
+  fullWidth,
   ...rest
 }) => {
   return (
     <Button
       startIcon={icon}
+      fullWidth={fullWidth}
       sx={{
         backgroundColor: backgroundColor,
         color: textColor,

@@ -1,10 +1,13 @@
 "use client";
+import ProgressBar from "@/libs/core/components/progressBar";
+import { Grid } from "@mui/material";
 import { NextPage } from "next";
 import Image from "next/image";
 
 export const Home: NextPage = () => {
+  const amount: number = 1000000;
   return (
-    <div className="w-full h-full flex flex-col items-center">
+    <div className="w-full h-full flex flex-col items-center font-roboto">
       <Image
         src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
         alt="Mô tả ảnh" // Bắt buộc
@@ -13,39 +16,77 @@ export const Home: NextPage = () => {
         sizes="100vw"
         style={{ width: "100%", height: "450px" }}
       />
-      <h1 className="text-5xl mt-20 mb-10 font-bold">Dự án đang gây quỹ</h1>
+      <h1 className="text-5xl mt-20 mb-10 ">Dự án đang gây quỹ</h1>
       <h1 className="text-3xl ">
         Hãy lựa chọn đồng hành cùng dự án mà bạn quan tâm
       </h1>
-      <div className="w-3/5 flex items-center justify-around space-x-6 m-8">
-        <div className="h-[500px] bg-slate-200">
-          <Image
-            src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
-            alt="Mô tả ảnh" // Bắt buộc
-            width={400} // Bắt buộc
-            height={300} // Bắt buộc
-            sizes="100vw"
-          />
-        </div>
-        <div className="h-[500px] bg-slate-200">
-          <Image
-            src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
-            alt="Mô tả ảnh" // Bắt buộc
-            width={400} // Bắt buộc
-            height={300} // Bắt buộc
-            sizes="100vw"
-          />
-        </div>
-        <div className="h-[500px] bg-slate-200">
-          <Image
-            src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
-            alt="Mô tả ảnh" // Bắt buộc
-            width={400} // Bắt buộc
-            height={300} // Bắt buộc
-            sizes="100vw"
-          />
-        </div>
+      <div className="w-2/3">
+        <Grid
+          container
+          sx={{ padding: "0 10px", marginTop: "10px" }}
+          rowSpacing={4}
+          columnSpacing={4}
+        >
+          <Grid size={4}>
+            <div className="relative h-[450px] border-2 border-solid flex flex-col items-center justify-start">
+              <Image
+                src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
+                alt="Mô tả ảnh" // Bắt buộc
+                width={400} // Bắt buộc
+                height={300} // Bắt buộc
+                sizes="100vw"
+              />
+              <div className="absolute top-2 right-2 bg-rose-500 text-white px-3 py-1 text-sm rounded">
+                Trẻ em
+              </div>
+
+              <div className="w-10/12">
+                <h1 className="text-2xl mb-4 mt-4 font-bold">
+                  Chung tay vì học đường xanh, sạch nơi vùng cao
+                </h1>
+                <ProgressBar amount={4831500} percent={10} />
+                <h1 className="mt-4 text-gray-400 font-medium">
+                  Với mục tiêu {amount.toLocaleString("vi-VN")}đ
+                </h1>
+              </div>
+            </div>
+          </Grid>
+          <Grid size={4}>
+            <div className="h-[500px] bg-slate-200">
+              <Image
+                src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
+                alt="Mô tả ảnh" // Bắt buộc
+                width={400} // Bắt buộc
+                height={300} // Bắt buộc
+                sizes="100vw"
+              />
+            </div>
+          </Grid>
+          <Grid size={4}>
+            <div className="h-[500px] bg-slate-200">
+              <Image
+                src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
+                alt="Mô tả ảnh" // Bắt buộc
+                width={400} // Bắt buộc
+                height={300} // Bắt buộc
+                sizes="100vw"
+              />
+            </div>
+          </Grid>
+          <Grid size={4}>
+            <div className="h-[500px] bg-slate-200">
+              <Image
+                src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
+                alt="Mô tả ảnh" // Bắt buộc
+                width={400} // Bắt buộc
+                height={300} // Bắt buộc
+                sizes="100vw"
+              />
+            </div>
+          </Grid>
+        </Grid>
       </div>
+      <div className="w-3/5 flex items-center justify-around space-x-6 m-8"></div>
       <h1 className="text-red-600 text-xl font-bold m-3">Xem tất cả</h1>
       <div
         className="relative w-full h-[300px] bg-cover bg-center bg-no-repeat m-4"
