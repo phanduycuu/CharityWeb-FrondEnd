@@ -3,19 +3,54 @@ import ProgressBar from "@/libs/core/components/progressBar";
 import { Grid } from "@mui/material";
 import { NextPage } from "next";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { getCampaign } from "../../services/campaignServices";
+import { Campaign } from "@/libs/shared/charity/model/campaign.model";
+import { CampaignItem } from "../../components/campaign/CampaignItem";
+import { getStatisticalUser } from "../../services/statisticalServices";
+import { StatisticalUser } from "@/libs/shared/charity/model/statistiacal.model";
 
 export const Home: NextPage = () => {
-  const amount: number = 1000000;
+  const [campaign, setCampaign] = useState<Campaign[]>([]);
+  const [statistical, setStatistical] = useState<StatisticalUser | null>(null);
+  const fetchgetcampaign = async () => {
+    try {
+      const response = await getCampaign();
+      setCampaign(response.data.items);
+    } catch (err) {
+      console.error("Lỗi :", err);
+    }
+  };
+  const fetchgetStatistical = async () => {
+    try {
+      const response = await getStatisticalUser();
+      setStatistical(response.data);
+    } catch (err) {
+      console.error("Lỗi :", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchgetcampaign();
+    fetchgetStatistical();
+  }, []);
+
+  function formatVietNamCurrency(num: number): string {
+    if (num >= 1_000_000_000) {
+      return (num / 1_000_000_000).toFixed(1).replace(".", ",") + " tỷ";
+    } else if (num >= 1_000_000) {
+      return (num / 1_000_000).toFixed(1).replace(".", ",") + " triệu";
+    } else if (num >= 1_000) {
+      return (num / 1_000).toFixed(1).replace(".", ",") + " nghìn";
+    }
+    return num.toString();
+  }
   return (
-    <div className="w-full h-full flex flex-col items-center font-roboto">
-      <Image
-        src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
-        alt="Mô tả ảnh" // Bắt buộc
-        width={0} // Bắt buộc
-        height={0} // Bắt buộc
-        sizes="100vw"
-        style={{ width: "100%", height: "450px" }}
-      />
+    <div className="w-full h-full flex flex-col items-center font-roboto ">
+      <div
+        className=" w-full h-[500px] bg-cover bg-center bg-no-repeat "
+        style={{ backgroundImage: "url('/img/tu_thien.jpg')" }}
+      ></div>
       <h1 className="text-5xl mt-20 mb-10 ">Dự án đang gây quỹ</h1>
       <h1 className="text-3xl ">
         Hãy lựa chọn đồng hành cùng dự án mà bạn quan tâm
@@ -27,63 +62,9 @@ export const Home: NextPage = () => {
           rowSpacing={4}
           columnSpacing={4}
         >
-          <Grid size={4}>
-            <div className="relative h-[450px] border-2 border-solid flex flex-col items-center justify-start">
-              <Image
-                src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
-                alt="Mô tả ảnh" // Bắt buộc
-                width={400} // Bắt buộc
-                height={300} // Bắt buộc
-                sizes="100vw"
-              />
-              <div className="absolute top-2 right-2 bg-rose-500 text-white px-3 py-1 text-sm rounded">
-                Trẻ em
-              </div>
-
-              <div className="w-10/12">
-                <h1 className="text-2xl mb-4 mt-4 font-bold">
-                  Chung tay vì học đường xanh, sạch nơi vùng cao
-                </h1>
-                <ProgressBar amount={4831500} percent={10} />
-                <h1 className="mt-4 text-gray-400 font-medium">
-                  Với mục tiêu {amount.toLocaleString("vi-VN")}đ
-                </h1>
-              </div>
-            </div>
-          </Grid>
-          <Grid size={4}>
-            <div className="h-[500px] bg-slate-200">
-              <Image
-                src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
-                alt="Mô tả ảnh" // Bắt buộc
-                width={400} // Bắt buộc
-                height={300} // Bắt buộc
-                sizes="100vw"
-              />
-            </div>
-          </Grid>
-          <Grid size={4}>
-            <div className="h-[500px] bg-slate-200">
-              <Image
-                src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
-                alt="Mô tả ảnh" // Bắt buộc
-                width={400} // Bắt buộc
-                height={300} // Bắt buộc
-                sizes="100vw"
-              />
-            </div>
-          </Grid>
-          <Grid size={4}>
-            <div className="h-[500px] bg-slate-200">
-              <Image
-                src="/img/tu_thien.jpg" // Đường dẫn ảnh (tương đối hoặc tuyệt đối)
-                alt="Mô tả ảnh" // Bắt buộc
-                width={400} // Bắt buộc
-                height={300} // Bắt buộc
-                sizes="100vw"
-              />
-            </div>
-          </Grid>
+          {campaign.map((campaign) => (
+            <CampaignItem key={campaign.id} campaign={campaign} />
+          ))}
         </Grid>
       </div>
       <div className="w-3/5 flex items-center justify-around space-x-6 m-8"></div>
@@ -100,26 +81,23 @@ export const Home: NextPage = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-8">
             Những con số biết nói
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             <div>
               <p className="text-sm mb-1">Dự án</p>
-              <p className="text-2xl font-bold">123</p>
+              <p className="text-2xl font-bold">{statistical?.totalCampaign}</p>
             </div>
-            <div>
-              <p className="text-sm mb-1">Sứ giả</p>
-              <p className="text-2xl font-bold">153</p>
-            </div>
-            <div>
-              <p className="text-sm mb-1">Tổ chức</p>
-              <p className="text-2xl font-bold">35</p>
-            </div>
+
             <div>
               <p className="text-sm mb-1">Lượt ủng hộ</p>
-              <p className="text-2xl font-bold">30.914</p>
+              <p className="text-2xl font-bold">
+                {statistical?.toltalDonation}
+              </p>
             </div>
             <div>
               <p className="text-sm mb-1">Tiền ủng hộ</p>
-              <p className="text-2xl font-bold">2.79 tỷ</p>
+              <p className="text-2xl font-bold">
+                {formatVietNamCurrency(statistical?.totalAmount || 0)}
+              </p>
             </div>
           </div>
         </div>

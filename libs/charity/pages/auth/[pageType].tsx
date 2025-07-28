@@ -6,13 +6,47 @@ import { NextPage } from "next";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { login, Register } from "../../services/authServices";
+import { login, loginGoogle, Register } from "../../services/authServices";
+import CustomSnackbar from "@/libs/core/components/SnackBar";
+import {
+  CredentialResponse,
+  GoogleLogin,
+  GoogleOAuthProvider,
+} from "@react-oauth/google";
+import axios from "axios";
+
+function GoogleLoginButton() {
+  const router = useRouter();
+  const handleSuccess = async (credentialResponse: CredentialResponse) => {
+    const idToken = credentialResponse.credential;
+
+    const res = await loginGoogle(idToken || "");
+
+    // Lưu token, redirect, hoặc hiển thị thông tin
+    if (res) {
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("tokenKit", JSON.stringify(res.data.tokenKit));
+      router.push("/system");
+    }
+    return res.data;
+  };
+
+  return (
+    <GoogleLogin
+      onSuccess={handleSuccess}
+      onError={() => {
+        console.log("Login Failed");
+      }}
+    />
+  );
+}
 
 export const Login: NextPage = () => {
   const router = useRouter();
   const pageType = useParams();
   const isLogin = pageType?.pageType === "login";
-
+  const [openError, setOpenError] = useState<boolean>(false);
+  const [messageError, setMessageError] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [name, setName] = useState<string>("");
@@ -27,32 +61,70 @@ export const Login: NextPage = () => {
     password === ""
       ? setErrorPassword("Vui lòng nhập password")
       : setErrorPassword("");
-    if (isLogin) {
-      const response = await login({
-        email,
-        password,
-      });
-      console.log(response.data);
-      if (response) {
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        localStorage.setItem(
-          "tokenKit",
-          JSON.stringify(response.data.tokenKit)
-        );
-        router.push("/system");
+    if (isLogin && errorEmail === "" && errorPassword === "") {
+      try {
+        const response = await login({
+          email,
+          password,
+        });
+
+        console.log(response.data);
+
+        if (response) {
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+          localStorage.setItem(
+            "tokenKit",
+            JSON.stringify(response.data.tokenKit)
+          );
+          router.push("/system");
+        }
+      } catch (error: any) {
+        console.error("Đăng nhập thất bại:", error);
+
+        // Nếu API trả lỗi từ server
+        if (error.response?.data?.message) {
+          setMessageError(error.response.data.message);
+          setOpenError(true);
+        } else {
+          alert("Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.");
+        }
       }
-    } else {
-      const response = await Register({
-        email,
-        name,
-        password,
-        role: "Donor",
-      });
-      router.push("/auth/login");
+    }
+    if (
+      !isLogin &&
+      errorEmail === "" &&
+      errorPassword === "" &&
+      errorName === ""
+    ) {
+      try {
+        const response = await Register({
+          email,
+          name,
+          password,
+          role: "Donor",
+        });
+        router.push("/auth/login");
+      } catch (error: any) {
+        console.error("Đăng kí thất bại:", error);
+
+        // Nếu API trả lỗi từ server
+        if (error.response?.data) {
+          setMessageError(error.response.data);
+          setOpenError(true);
+        } else {
+          alert("Đã xảy ra lỗi khi đăng kí. Vui lòng thử lại.");
+        }
+      }
     }
   };
   return (
     <form>
+      <CustomSnackbar
+        open={openError}
+        onClose={() => setOpenError(false)}
+        message={messageError}
+        severity="error"
+      />
       <div className="w-full h-full flex items-center justify-center">
         <div className="w-1/3 h-[300px ] border-2 border-solid flex flex-col items-center mt-8 p-8">
           <div className=" flex flex-col items-center space-y-8 w-4/5  ">
@@ -92,6 +164,9 @@ export const Login: NextPage = () => {
             >
               {isLogin ? "Đăng nhập" : "Đăng kí"}
             </CustomButton>
+            <GoogleOAuthProvider clientId="343317132434-l7rnqda6cl651ljl2h7ahocmclgaabrj.apps.googleusercontent.com">
+              <GoogleLoginButton />
+            </GoogleOAuthProvider>
           </div>
         </div>
       </div>

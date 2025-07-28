@@ -3,8 +3,19 @@ import { Menu, MenuItem, Button, Typography } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { Category } from "@/libs/shared/charity/model/category.model";
 import { getCategory } from "@/libs/charity/services/categoryServices";
+import { useRouter, useSearchParams } from "next/navigation";
 
-const DropdownMenu = () => {
+const DropdownMenu = ({
+  search,
+  setCampaignId,
+  handleFilter,
+}: {
+  search: string;
+  setCampaignId: (campaignId: string) => void;
+  handleFilter: (search: string, campaignId: string) => void;
+}) => {
+  const router = useRouter();
+
   const [category, setCategory] = useState<Category[]>([]);
   const fetchgetCategory = async () => {
     try {
@@ -26,11 +37,12 @@ const DropdownMenu = () => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (value: string) => {
-    alert(value);
+  const handleClose = () => {
     setAnchorEl(null);
   };
-
+  const handleOnClick = (id: string) => {
+    router.push(`/system/campaign?id=${id}`); // hoặc `/campaign/index?id=...`
+  };
   return (
     <>
       <Button
@@ -55,7 +67,8 @@ const DropdownMenu = () => {
           <MenuItem
             key={index}
             onClick={() => {
-              handleClose(item.id);
+              setCampaignId(item.id);
+              handleFilter(search || "", item.id);
             }}
             // sx={{
             //   color: item === "Áo Sơmi" ? "orange" : "black",

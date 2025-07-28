@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import SearchIcon from "@mui/icons-material/Search";
 import InputField from "../input/Input";
@@ -11,8 +11,23 @@ import { Category } from "@/libs/shared/charity/model/category.model";
 import { getCategory } from "@/libs/charity/services/categoryServices";
 const SideBar = () => {
   const router = useRouter();
-  const [category, setCategory] = useState<Category[]>([]);
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const searchParams = useSearchParams();
+  const searchKey = searchParams.get("searchkey");
+  const [search, setSearch] = useState<string | null>(searchKey);
+  const [user, setUser] = useState<any>(null);
+  const [campaignId, setCampaignId] = useState<string>("");
+
+  const handleFilter = (search: string, campaignId: string) => {
+    router.push(`/system/campaign?id=${campaignId}&searchKey=${search}`); // hoặc `/campaign/index?id=...`
+  };
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    }
+  }, []);
   const fetchgetCategory = async () => {
     try {
       const response = await getCategory();
@@ -38,13 +53,33 @@ const SideBar = () => {
       </div>
       <div className="w-2/3 flex items-center justify-end space-x-16">
         <Button sx={{ color: "black" }}>trang chủ</Button>
-        <Button sx={{ color: "black" }}>dự án</Button>
+        <Button
+          sx={{ color: "black" }}
+          onClick={() => router.push("/system/campaign")}
+        >
+          dự án
+        </Button>
 
-        <DropdownMenu />
+        <DropdownMenu
+          search={search || ""}
+          handleFilter={handleFilter}
+          setCampaignId={setCampaignId}
+        />
 
         <div className=" flex flex-row items-end pr-10">
-          <InputField fullWidth={false} />
-          <SearchIcon fontSize="large" />
+          <InputField
+            fullWidth={false}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Enter") {
+                handleFilter(search || "", campaignId);
+              }
+            }}
+          />
+          <SearchIcon
+            fontSize="large"
+            onClick={() => handleFilter(search || "", campaignId)}
+          />
         </div>
         {user ? (
           user.fullName

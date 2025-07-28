@@ -3,6 +3,7 @@ import {
   RegisterForm,
 } from "@/libs/shared/charity/model/auth.model";
 import axios from "axios";
+import { axiosAuth } from "./axiosAuth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -18,6 +19,16 @@ export const login = async (data: LoginForm) => {
 export const Register = async (data: RegisterForm) => {
   try {
     const response = await axios.post(`${API_URL}/auth/register`, data);
+    return response; // Trả về dữ liệu có cấu trúc đúng
+  } catch (error) {
+    throw error;
+  }
+};
+export const loginGoogle = async (idToken: string) => {
+  try {
+    const response = await axiosAuth.post(`${API_URL}/auth/google-login`, {
+      idToken,
+    });
     return response; // Trả về dữ liệu có cấu trúc đúng
   } catch (error) {
     throw error;

@@ -31,6 +31,7 @@ type CustomInputProps<TForm extends FieldValues> = {
   variant?: "outlined" | "standard" | "filled";
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   errorMessage?: string;
   error?: boolean;
   helperText?: boolean;
@@ -74,28 +75,23 @@ const InputField = <TForm extends FieldValues>({
   fractionModeSpecial,
   onBlur,
   onlyDecimal,
+  onKeyDown,
 }: CustomInputProps<TForm>) => {
   const [showPassword, setShowPassword] = useState(false);
   const [focused, setFocused] = useState(false);
   const isPassword = type === "password";
+
   const togglePassword = () => setShowPassword((show) => !show);
   // Thêm dấu chấm phần nghìn
   const formatDecimal = (value: string) => {
-    // Loại bỏ mọi ký tự không phải số
-    return value.replace(/[^\d.]/g, "");
+    // Bỏ mọi ký tự không phải số (kể cả dấu chấm)
+    return value.replace(/[^\d]/g, "");
   };
 
-  const formatNumber = (value: string) => {
-    // Lọc chỉ lấy số
-    const numeric = value.replace(/\D/g, "");
-
-    // Nếu ít hơn 3 chữ số, trả về như cũ
-    if (numeric.length < 3) return numeric;
-
-    // Thêm dấu chấm trước số cuối cùng
-    const head = numeric.slice(0, -1);
-    const tail = numeric.slice(-1);
-    return `${head}.${tail}`;
+  const formatMoney = (value: string) => {
+    const numeric = value.replace(/[^\d]/g, ""); // Chỉ lấy số
+    if (!numeric) return "";
+    return new Intl.NumberFormat("vi-VN").format(Number(numeric));
   };
   const parseNumber = (formatted: string) => {
     return formatted.replace(/\./g, "");
@@ -227,7 +223,7 @@ const InputField = <TForm extends FieldValues>({
               onChange(formatted);
             } else if (moneyMode) {
               const formatted = formatDecimal(raw);
-              onChange(formatted);
+              onChange(Number(formatted));
             } else {
               onChange(raw);
             }
@@ -249,7 +245,7 @@ const InputField = <TForm extends FieldValues>({
             if (fractionMode || fractionModeSpecial) {
               return value || "0/0"; // nếu chưa có gì thì hiển thị 0/0
             } else if (moneyMode) {
-              return formatDecimal(value?.toString() || "");
+              return formatMoney(value?.toString() || "");
             } else {
               return value;
             }
@@ -273,7 +269,7 @@ const InputField = <TForm extends FieldValues>({
               variant={variant}
               type="text"
               error={error ? !!fieldState.error : false}
-              helperText={helperText ? fieldState.error?.message || " " : " "}
+              helperText={helperText ? fieldState.error?.message || "" : ""}
               slotProps={slotProps}
               disabled={disabled}
               InputProps={{
@@ -337,6 +333,7 @@ const InputField = <TForm extends FieldValues>({
       slotProps={slotProps}
       disabled={disabled}
       placeholder={placeholder}
+      onKeyDown={onKeyDown}
     />
   );
 };
